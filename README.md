@@ -107,8 +107,8 @@ curl -X POST http://127.0.0.1:8000/translate \
 - 中文文本：cu-chinese-wiki-translations 维护者
 - 游戏文本与素材：游戏作者
 
-👉 原项目地址：[GitHub - yexi-by/XUnity.AutoTranslator-CustomTranslate-LLM-translate](https://github.com/yexi-by/XUnity.AutoTranslator-CustomTranslate-LLM-translate)
-👉 聊天插件：[AutoTranslate · Nexus Mods](https://www.nexusmods.com/scavprototype/mods/607)
-👉 中文文本源：[dodo23333/cu-chinese-wiki-translations](https://github.com/dodo23333/cu-chinese-wiki-translations)
+- 👉 原项目地址：[GitHub - yexi-by/XUnity.AutoTranslator-CustomTranslate-LLM-translate](https://github.com/yexi-by/XUnity.AutoTranslator-CustomTranslate-LLM-translate)
+- 👉 聊天插件：[AutoTranslate · Nexus Mods](https://www.nexusmods.com/scavprototype/mods/607)
+- 👉 中文文本源：[dodo23333/cu-chinese-wiki-translations](https://github.com/dodo23333/cu-chinese-wiki-translations)
 
 本项目开发全程使用 **DeepSeek-V41-Flash** 辅助，不限于提示词：包括规则梳理、术语一致性检查、代码调整与多语言回归用例的整理；相关建议由维护者复核后采纳。该模型仅用于开发阶段，不参与运行时翻译；服务运行时使用 `config.yaml` 中配置的模型（默认 `deepseek-flash`）。
