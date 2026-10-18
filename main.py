@@ -3,9 +3,10 @@ from fastapi.responses import JSONResponse
 from openai import AsyncOpenAI
 from openai_llm import OpenaiLlm
 from pathlib import Path
+from contextlib import asynccontextmanager
 import sys
 from loguru import logger
-from settings import api_key, base_url, model_name
+from settings import api_key, base_url, model_name, port as config_port
 
 logger.remove()
 logger.add(
@@ -29,7 +30,53 @@ if missing:
     print("=" * 46)
     raise SystemExit(1)
 
-app = FastAPI()
+DEFAULT_PORT = 8000
+
+
+def resolve_port(value) -> int:
+    """读取 config.yaml 的 port；缺失或非法时回退到 8000。"""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return DEFAULT_PORT
+    try:
+        port = int(str(value).strip())
+    except (TypeError, ValueError):
+        logger.warning(f"config.yaml 中 port 不是合法整数（{value!r}），已回退到 {DEFAULT_PORT}")
+        return DEFAULT_PORT
+    if not 1 <= port <= 65535:
+        logger.warning(f"config.yaml 中 port 超出 1~65535（{port}），已回退到 {DEFAULT_PORT}")
+        return DEFAULT_PORT
+    return port
+
+
+PORT = resolve_port(config_port)
+
+LOG_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"plain": {"format": "%(asctime)s | %(levelname)s | %(message)s"}},
+    "handlers": {
+        "stderr": {
+            "class": "logging.StreamHandler",
+            "formatter": "plain",
+            "stream": "ext://sys.stderr",
+        }
+    },
+    "loggers": {
+        "uvicorn": {"handlers": ["stderr"], "level": "WARNING", "propagate": False},
+        "uvicorn.error": {"handlers": ["stderr"], "level": "WARNING", "propagate": False},
+        "uvicorn.access": {"handlers": ["stderr"], "level": "WARNING", "propagate": False},
+    },
+}
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.success(f"服务已就绪：http://0.0.0.0:{PORT}")
+    yield
+    logger.info("服务已停止")
+
+
+app = FastAPI(lifespan=lifespan)
 client = AsyncOpenAI(
     api_key=api_key,
     base_url=base_url
@@ -104,9 +151,13 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
+    logger.info(f"正在启动翻译服务，端口 {PORT}")
+    logger.info(f"热重载监视目录：{Path(__file__).parent}")
+    logger.info("按 Ctrl+C 停止服务")
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True
+        port=PORT,
+        reload=True,
+        log_config=LOG_CONFIG
     )

@@ -20,6 +20,7 @@ config = load_yaml_config()
 api_key = config.get('api_key') if config else None
 base_url = config.get('base_url') if config else None
 model_name = config.get('model_name') if config else None
+port = config.get('port') if config else None                                    # 服务监听端口（不写 = 8000，非法值同样回退）
 
 # ---------- 可选配置：不写就是 None，由调用方按各自默认值处理 ----------
 temperature = config.get('temperature') if config else None                      # 采样温度（不写 = 服务商默认）
