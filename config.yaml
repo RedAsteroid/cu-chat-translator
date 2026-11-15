@@ -37,7 +37,7 @@ send_temperature: true
 
 # 单次输出长度上限。思考模式下过大可能截断回答。
 # 默认：不发送
-max_tokens: 512
+max_tokens: 2048
 
 # 是否将长度参数随请求发送。Kimi 设为 false（该参数已废弃，改用 max_completion_tokens）。
 # 默认：true
@@ -72,8 +72,8 @@ send_thinking: true
 extra_body_json: ''
 
 # 单次请求超时，单位：秒（每次尝试单独计时）。
-# 默认：60 秒
-timeout: 60
+# 默认：12 秒
+timeout: 12
 
 # 网络异常（限流、服务端错误、连接失败）时的自动重试次数。
 # 默认：0（不重试）
