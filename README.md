@@ -45,9 +45,28 @@ thinking: false     # 聊天翻译建议关闭
 
 插件位于 Nexus Mods（[AutoTranslate](https://www.nexusmods.com/scavprototype/mods/607)），插件本体不包含在本仓库中。配置文件为 `BepInEx\config\AutoTranslate\AutoTranslate.cfg`，修改后重启游戏生效。
 
-确认以下片段：
+游戏内插件设置里启用「启用高级翻译」（对应 `AdvancedTranslation=True`），自定义 API 才会进入翻译链。配置片段如下：
 
 ```ini
+# ---------- General ----------
+Enabled=True                            # Master switch for the plugin
+OutgoingLanguage=en              # Language of your outgoing messages
+IncomingLanguage=zh-CN              # Language of incoming messages to translate
+AdvancedTranslation=False    # Use advanced (AI) translation pipeline
+VerboseLogging=False              # Emit debug logs (translation chain details, cache hits, etc.)
+DetectLatinLanguages=True  # Also detect languages between Latin ones (English/German/French...)
+
+# ---------- UI ----------
+ShowOriginal=True                          # Show original text alongside the translation
+SendTranslationEnabled=True      # Translate outgoing messages before sending
+ShowOriginalInSend=False              # Include original text in outgoing messages
+TranslateDescriptions=True  # Translate item/building descriptions (turn off to save requests)
+MaxCacheEntries=512                    # Max cached translations, LRU evicted (500-200000)
+UseCache=True                            # Reuse identical chat translations (in-memory)
+
+# ---------- AutoMatch ----------
+AutoMatchEnabled=False      # Automatically match the outgoing language
+
 # ---------- API ----------
 # NOTE: the values below may contain '#' and spaces, so they carry no inline comment.
 TranslationEngine=Auto
@@ -60,7 +79,7 @@ AIApiKey=
 AIModel=
 ```
 
-- `AdvancedTranslation` 必须为 `True`，自定义 API 才会进入翻译链；`Enabled` 保持 `True`，`CustomApiUrl` 的端口与 `config.yaml` 一致。
+- `CustomApiUrl` 的端口须与 `config.yaml` 一致，结尾斜杠可选。
 - `AIBaseUrl` 指向本服务时，插件的 UI 文本翻译沿用本项目的 `prompt.txt` 与术语表（§15 约束物品名、建筑描述等 UI 词条）；留空则只翻译聊天。物品名称与描述也要走 AI 时，另将 `UseAIForUI` 设为 `True`。
 - `AIApiKey` / `AIModel` 留空即由本服务处理 UI 文本，插件内的 `AIPrompt` / `AIUIPrompt` 不参与翻译；填写这两项则调用 AutoTranslate 内置的 AI 翻译功能，不再经过本后端。
 
@@ -81,7 +100,7 @@ curl -X POST http://127.0.0.1:8000/translate \
 
 | 现象 | 处理 |
 |---|---|
-| 游戏内无翻译结果 | 先检查 `/health`，再确认 `Enabled` 与 `AdvancedTranslation` 均为 `True`、`CustomApiUrl` 端口与 `config.yaml` 一致，并按 `ToggleKey`（默认 `\`）确认发言翻译没有被关掉 |
+| 游戏内无翻译结果 | 先检查 `/health`，再确认 `Enabled` 与 `AdvancedTranslation` 均为 `True`（游戏内已启用「启用高级翻译」）、`CustomApiUrl` 端口与 `config.yaml` 一致，并按 `ToggleKey`（默认 `\`）确认发言翻译没有被关掉 |
 | UI 文本或物品描述仍是原文 | 确认 `AIBaseUrl` 已指向本服务、`AIApiKey` / `AIModel` 留空，并检查 `UseAIForUI` 与 `TranslateDescriptions` 是否开启 |
 | 返回 500 或 JSON 解析失败 | 通常为端点不支持 JSON 模式，可将 `json_mode` 设为 `false` |
 | 译文退化为机翻 | 本地服务不可用，插件已回退至免费翻译引擎 |
